@@ -8,88 +8,41 @@
 
 <style>
 *{box-sizing:border-box}
-
 body{
-  margin:0;
-  background:#f1f5f2;
-  color:#18352a;
-  font-family:Arial,Tahoma,sans-serif;
+  margin:0;background:#f1f5f2;color:#18352a;
+  font-family:Arial,Tahoma,sans-serif
 }
-
 header{
-  background:#176b4b;
-  color:white;
-  padding:25px 16px;
-  text-align:center;
+  background:#176b4b;color:white;padding:25px 16px;text-align:center
 }
-
 header h1{margin:0;font-size:23px}
 header p{margin:9px 0 0;font-size:14px}
-
-main{
-  max-width:600px;
-  margin:22px auto;
-  padding:0 15px;
-}
-
+main{max-width:600px;margin:22px auto;padding:0 15px}
 .card{
-  background:white;
-  padding:20px;
-  border-radius:15px;
-  margin-bottom:16px;
-  box-shadow:0 3px 12px #0000000c;
+  background:white;padding:20px;border-radius:15px;
+  margin-bottom:16px;box-shadow:0 3px 12px #0000000c
 }
-
 h2{font-size:18px;margin:0 0 16px}
-
-.note{
-  color:#718078;
-  font-size:13px;
-  line-height:1.8;
-}
-
-#photo{
-  display:block;
-  width:100%;
-  padding:14px;
-  margin-top:15px;
-  background:#e6f1eb;
-  border:2px solid #176b4b;
-  border-radius:10px;
-  font-size:15px;
-  color:#18352a;
-}
-
-#preview{
-  display:none;
-  width:100%;
-  max-height:430px;
-  object-fit:contain;
-  border-radius:10px;
-  margin-top:15px;
-  background:#eee;
-}
-
+.note{color:#718078;font-size:13px;line-height:1.8}
 button{
-  width:100%;
-  border:0;
-  border-radius:10px;
-  padding:15px;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer;
-  margin-top:10px;
+  width:100%;border:0;border-radius:10px;padding:15px;
+  font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px
 }
-
 .primary{background:#176b4b;color:white}
 .secondary{background:#e6f1eb;color:#176b4b}
-
-footer{
-  text-align:center;
-  padding:20px;
-  color:#718078;
-  font-size:12px;
+.danger{background:#fbe9e7;color:#a52a2a}
+#photo{display:none}
+#preview{
+  display:none;width:100%;max-height:430px;
+  object-fit:contain;border-radius:10px;margin-top:15px;background:#eee
 }
+#cameraArea{display:none;margin-top:15px}
+video{width:100%;border-radius:10px;background:#111}
+#status{
+  margin-top:12px;padding:10px;border-radius:8px;
+  background:#f1f5f2;font-size:13px;line-height:1.7
+}
+footer{text-align:center;padding:20px;color:#718078;font-size:12px}
 </style>
 </head>
 
@@ -103,36 +56,49 @@ footer{
 <main>
 
 <div class="card">
-
   <h2>📷 تصوير فاتورة جديدة</h2>
 
   <p class="note">
-    اختر صورة الفاتورة من هاتفك أو التقط صورة جديدة بالكاميرا.
+    يمكنك التقاط صورة مباشرة بالكاميرا أو اختيار صورة محفوظة في هاتفك.
   </p>
 
-  <label for="photo" class="note">
-    📸 اضغط هنا لاختيار صورة أو فتح الكاميرا:
-  </label>
+  <button class="primary" id="openCamera" type="button">
+    📸 تشغيل كاميرا الهاتف
+  </button>
 
-  <input
-    type="file"
-    id="photo"
-    accept="image/*"
-    capture="environment"
-  >
+  <button class="secondary" id="choosePhoto" type="button">
+    📁 اختيار صورة من الهاتف
+  </button>
+
+  <input type="file" id="photo" accept="image/*">
+
+  <div id="cameraArea">
+    <video id="video" autoplay playsinline muted></video>
+    <button class="primary" id="takePhoto" type="button">
+      التقاط صورة الفاتورة
+    </button>
+    <button class="danger" id="closeCamera" type="button">
+      إغلاق الكاميرا
+    </button>
+  </div>
+
+  <canvas id="canvas" style="display:none"></canvas>
 
   <img id="preview" alt="صورة الفاتورة">
 
-  <button id="remove" class="secondary" type="button" style="display:none">
+  <button id="remove" class="danger" type="button" style="display:none">
     حذف الصورة وإعادة التصوير
   </button>
 
+  <div id="status" aria-live="polite">
+    في انتظار اختيار صورة أو تشغيل الكاميرا.
+  </div>
 </div>
 
 <div class="card">
   <h2>🧾 استخراج بيانات الفاتورة</h2>
   <p class="note">
-    بعد تصوير الفاتورة، ستتمكن من استخراج البيانات ومراجعتها قبل إنشاء الفاتورة الرقمية.
+    بعد تصوير الفاتورة ستتم إضافة خدمة استخراج البيانات ومراجعتها.
   </p>
   <button class="primary" disabled style="opacity:.5">
     استخراج البيانات - قريباً
@@ -142,7 +108,7 @@ footer{
 <div class="card">
   <h2>📁 إدارة الفواتير</h2>
   <p class="note">
-    سيتم إضافة سجل الفواتير والبحث والطباعة وتحميل ملفات PDF في المراحل القادمة.
+    سيتم إضافة سجل الفواتير والبحث والطباعة وتحميل ملفات PDF.
   </p>
 </div>
 
@@ -153,43 +119,142 @@ footer{
 <script>
 const photo = document.getElementById("photo");
 const preview = document.getElementById("preview");
-const remove = document.getElementById("remove");
+const video = document.getElementById("video");
+const cameraArea = document.getElementById("cameraArea");
+const canvas = document.getElementById("canvas");
+const statusBox = document.getElementById("status");
+
+let cameraStream = null;
+let imageUrl = null;
+
+function showStatus(message){
+  statusBox.textContent = message;
+}
+
+function showImage(blob){
+  if(imageUrl) URL.revokeObjectURL(imageUrl);
+
+  imageUrl = URL.createObjectURL(blob);
+  preview.src = imageUrl;
+  preview.style.display = "block";
+  document.getElementById("remove").style.display = "block";
+}
+
+function stopCamera(){
+  if(cameraStream){
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+  video.srcObject = null;
+  cameraArea.style.display = "none";
+}
+
+document.getElementById("openCamera").addEventListener("click", async function(){
+
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    showStatus("المتصفح لا يدعم تشغيل الكاميرا مباشرة. استعمل زر اختيار صورة من الهاتف.");
+    return;
+  }
+
+  try{
+    showStatus("جارٍ طلب إذن تشغيل الكاميرا...");
+
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video:{
+        facingMode:{ideal:"environment"}
+      },
+      audio:false
+    });
+
+    video.srcObject = cameraStream;
+    cameraArea.style.display = "block";
+
+    await video.play();
+
+    showStatus("الكاميرا تعمل الآن. وجّه الهاتف نحو الفاتورة واضغط التقاط صورة.");
+
+  }catch(error){
+
+    stopCamera();
+
+    if(error.name === "NotAllowedError"){
+      showStatus("تم رفض إذن الكاميرا. اسمح لمتصفح Chrome باستخدام الكاميرا من إعدادات الهاتف.");
+    }else if(error.name === "NotFoundError"){
+      showStatus("لم يتم العثور على كاميرا في الجهاز.");
+    }else{
+      showStatus("تعذر تشغيل الكاميرا: " + error.message + ". يمكنك اختيار صورة من الهاتف.");
+    }
+  }
+});
+
+document.getElementById("choosePhoto").addEventListener("click", function(){
+  photo.click();
+});
 
 photo.addEventListener("change", function(){
 
   const file = this.files && this.files[0];
-
   if(!file) return;
 
   if(!file.type.startsWith("image/")){
-    alert("المرجو اختيار صورة صحيحة");
+    showStatus("المرجو اختيار ملف صورة صحيح.");
     this.value = "";
     return;
   }
 
-  if(preview.src.startsWith("blob:")){
-    URL.revokeObjectURL(preview.src);
-  }
-
-  preview.src = URL.createObjectURL(file);
-  preview.style.display = "block";
-  remove.style.display = "block";
-
+  stopCamera();
+  showImage(file);
+  showStatus("تم اختيار الصورة بنجاح. يمكنك معاينتها أو حذفها.");
 });
 
-remove.addEventListener("click", function(){
+document.getElementById("takePhoto").addEventListener("click", function(){
 
+  if(!video.videoWidth){
+    showStatus("انتظر حتى تعمل الكاميرا.");
+    return;
+  }
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const context = canvas.getContext("2d");
+  context.drawImage(video,0,0,canvas.width,canvas.height);
+
+  canvas.toBlob(function(blob){
+    if(!blob){
+      showStatus("تعذر حفظ الصورة. حاول مرة أخرى.");
+      return;
+    }
+
+    showImage(blob);
+    stopCamera();
+    showStatus("تم التقاط صورة الفاتورة بنجاح.");
+  },"image/jpeg",0.92);
+});
+
+document.getElementById("closeCamera").addEventListener("click", function(){
+  stopCamera();
+  showStatus("تم إغلاق الكاميرا.");
+});
+
+document.getElementById("remove").addEventListener("click", function(){
+
+  stopCamera();
   photo.value = "";
 
-  if(preview.src.startsWith("blob:")){
-    URL.revokeObjectURL(preview.src);
+  if(imageUrl){
+    URL.revokeObjectURL(imageUrl);
+    imageUrl = null;
   }
 
   preview.removeAttribute("src");
   preview.style.display = "none";
-  remove.style.display = "none";
+  this.style.display = "none";
 
+  showStatus("تم حذف الصورة. يمكنك التقاط صورة جديدة.");
 });
+
+window.addEventListener("pagehide", stopCamera);
 </script>
 
 </body>
