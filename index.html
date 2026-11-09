@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -28,6 +27,7 @@ button{
   width:100%;border:0;border-radius:10px;padding:15px;
   font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px
 }
+button:disabled{opacity:.6;cursor:wait}
 .primary{background:#176b4b;color:white}
 .secondary{background:#e6f1eb;color:#176b4b}
 .danger{background:#fbe9e7;color:#a52a2a}
@@ -41,6 +41,16 @@ video{width:100%;border-radius:10px;background:#111}
 #status{
   margin-top:12px;padding:10px;border-radius:8px;
   background:#f1f5f2;font-size:13px;line-height:1.7
+}
+#result{
+  margin-top:15px;line-height:2;overflow-wrap:anywhere
+}
+#result .result-field{
+  padding:7px 9px;border-bottom:1px solid #e8eee9
+}
+#result h3{font-size:16px;margin:18px 0 8px}
+#result .item{
+  background:#f5f8f5;padding:10px;border-radius:8px;margin:8px 0
 }
 footer{text-align:center;padding:20px;color:#718078;font-size:12px}
 </style>
@@ -98,11 +108,15 @@ footer{text-align:center;padding:20px;color:#718078;font-size:12px}
 <div class="card">
   <h2>🧾 استخراج بيانات الفاتورة</h2>
   <p class="note">
-    بعد تصوير الفاتورة ستتم إضافة خدمة استخراج البيانات ومراجعتها.
+    استخرج بيانات الفاتورة المكتوبة بالعربية أو الفرنسية،
+    ثم راجع المعلومات المستخرجة.
   </p>
-  <button class="primary" disabled style="opacity:.5">
-    استخراج البيانات - قريباً
+
+  <button class="primary" id="extractButton" type="button">
+    استخراج بيانات الفاتورة
   </button>
+
+  <div id="result" aria-live="polite"></div>
 </div>
 
 <div class="card">
@@ -117,15 +131,20 @@ footer{text-align:center;padding:20px;color:#718078;font-size:12px}
 <footer>FACTURE RACHID BABA © 2026</footer>
 
 <script>
+const OCR_URL = "https://facture-rachid-ocr.amzouzhassanbonssir.workers.dev";
+
 const photo = document.getElementById("photo");
 const preview = document.getElementById("preview");
 const video = document.getElementById("video");
 const cameraArea = document.getElementById("cameraArea");
 const canvas = document.getElementById("canvas");
 const statusBox = document.getElementById("status");
+const resultBox = document.getElementById("result");
+const extractButton = document.getElementById("extractButton");
 
 let cameraStream = null;
 let imageUrl = null;
+let capturedBlob = null;
 
 function showStatus(message){
   statusBox.textContent = message;
@@ -134,10 +153,12 @@ function showStatus(message){
 function showImage(blob){
   if(imageUrl) URL.revokeObjectURL(imageUrl);
 
+  capturedBlob = blob;
   imageUrl = URL.createObjectURL(blob);
   preview.src = imageUrl;
   preview.style.display = "block";
   document.getElementById("remove").style.display = "block";
+  resultBox.replaceChildren();
 }
 
 function stopCamera(){
@@ -160,21 +181,17 @@ document.getElementById("openCamera").addEventListener("click", async function()
     showStatus("جارٍ طلب إذن تشغيل الكاميرا...");
 
     cameraStream = await navigator.mediaDevices.getUserMedia({
-      video:{
-        facingMode:{ideal:"environment"}
-      },
+      video:{facingMode:{ideal:"environment"}},
       audio:false
     });
 
     video.srcObject = cameraStream;
     cameraArea.style.display = "block";
-
     await video.play();
 
     showStatus("الكاميرا تعمل الآن. وجّه الهاتف نحو الفاتورة واضغط التقاط صورة.");
 
   }catch(error){
-
     stopCamera();
 
     if(error.name === "NotAllowedError"){
@@ -192,7 +209,6 @@ document.getElementById("choosePhoto").addEventListener("click", function(){
 });
 
 photo.addEventListener("change", function(){
-
   const file = this.files && this.files[0];
   if(!file) return;
 
@@ -204,11 +220,10 @@ photo.addEventListener("change", function(){
 
   stopCamera();
   showImage(file);
-  showStatus("تم اختيار الصورة بنجاح. يمكنك معاينتها أو حذفها.");
+  showStatus("تم اختيار الصورة بنجاح. يمكنك معاينتها أو استخراج بياناتها.");
 });
 
 document.getElementById("takePhoto").addEventListener("click", function(){
-
   if(!video.videoWidth){
     showStatus("انتظر حتى تعمل الكاميرا.");
     return;
@@ -228,7 +243,7 @@ document.getElementById("takePhoto").addEventListener("click", function(){
 
     showImage(blob);
     stopCamera();
-    showStatus("تم التقاط صورة الفاتورة بنجاح.");
+    showStatus("تم التقاط صورة الفاتورة بنجاح. يمكنك الآن استخراج بياناتها.");
   },"image/jpeg",0.92);
 });
 
@@ -238,9 +253,9 @@ document.getElementById("closeCamera").addEventListener("click", function(){
 });
 
 document.getElementById("remove").addEventListener("click", function(){
-
   stopCamera();
   photo.value = "";
+  capturedBlob = null;
 
   if(imageUrl){
     URL.revokeObjectURL(imageUrl);
@@ -250,8 +265,114 @@ document.getElementById("remove").addEventListener("click", function(){
   preview.removeAttribute("src");
   preview.style.display = "none";
   this.style.display = "none";
+  resultBox.replaceChildren();
 
   showStatus("تم حذف الصورة. يمكنك التقاط صورة جديدة.");
+});
+
+function addResultField(label, value){
+  const row = document.createElement("div");
+  row.className = "result-field";
+
+  const strong = document.createElement("strong");
+  strong.textContent = label + ": ";
+
+  const span = document.createElement("span");
+  span.textContent = value === null || value === undefined || value === ""
+    ? "غير محدد"
+    : String(value);
+
+  row.append(strong, span);
+  resultBox.appendChild(row);
+}
+
+function displayInvoice(data){
+  resultBox.replaceChildren();
+
+  addResultField("البائع", data.seller);
+  addResultField("الزبون", data.customer);
+  addResultField("رقم الفاتورة", data.invoice_number);
+  addResultField("التاريخ", data.date);
+  addResultField("المجموع قبل الضريبة", data.subtotal);
+  addResultField("الضريبة", data.tax);
+  addResultField("المجموع النهائي", data.total);
+  addResultField("العملة", data.currency);
+  addResultField("ملاحظات", data.notes);
+
+  if(Array.isArray(data.items)){
+    const heading = document.createElement("h3");
+    heading.textContent = "تفاصيل الفاتورة";
+    resultBox.appendChild(heading);
+
+    data.items.forEach((item, index) => {
+      const box = document.createElement("div");
+      box.className = "item";
+
+      const title = document.createElement("strong");
+      title.textContent = "البند " + (index + 1);
+      box.appendChild(title);
+
+      const details = document.createElement("div");
+      details.textContent =
+        "الوصف: " + (item.description ?? "غير محدد") +
+        " | الكمية: " + (item.quantity ?? "—") +
+        " | ثمن الوحدة: " + (item.unit_price ?? "—") +
+        " | المجموع: " + (item.total ?? "—");
+
+      box.appendChild(details);
+      resultBox.appendChild(box);
+    });
+  }
+}
+
+extractButton.addEventListener("click", async function(){
+
+  if(!capturedBlob){
+    showStatus("المرجو تصوير الفاتورة أو اختيار صورة أولاً.");
+    return;
+  }
+
+  try{
+    extractButton.disabled = true;
+    extractButton.textContent = "جارٍ استخراج البيانات...";
+    resultBox.textContent = "يرجى الانتظار، تتم قراءة الفاتورة الآن...";
+
+    const formData = new FormData();
+    formData.append("image", capturedBlob, "facture.jpg");
+
+    const response = await fetch(OCR_URL, {
+      method: "POST",
+      body: formData
+    });
+
+    let result;
+
+    try{
+      result = await response.json();
+    }catch(parseError){
+      throw new Error("استجابة الخدمة غير مفهومة. حاول مرة أخرى.");
+    }
+
+    if(!response.ok || !result.success){
+      throw new Error(result.error || "تعذر استخراج بيانات الفاتورة");
+    }
+
+    if(!result.data || typeof result.data !== "object"){
+      throw new Error("لم تُرجع الخدمة بيانات فاتورة صالحة.");
+    }
+
+    displayInvoice(result.data);
+    showStatus("تم استخراج البيانات بنجاح. يرجى مراجعتها والتأكد من دقتها.");
+
+  }catch(error){
+    resultBox.textContent = "تعذر استخراج البيانات: " + error.message;
+    showStatus("حدث خطأ أثناء قراءة الفاتورة. تحقق من الاتصال وحاول مجدداً.");
+
+  }finally{
+    extractButton.disabled = false;
+    extractButton.textContent = "استخراج بيانات الفاتورة";
+  }
+
 });
 
 window.addEventListener("pagehide", stopCamera);
