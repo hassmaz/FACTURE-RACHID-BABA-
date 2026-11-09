@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FACTURE RACHID BABA</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#f1f5f2;
+ color:#18352a;
+ font-family:Arial,Tahoma,sans-serif;
+}
+header{
+ background:#176b4b;
+ color:white;
+ padding:25px 16px;
+ text-align:center;
+}
+header h1{margin:0;font-size:23px}
+header p{margin:9px 0 0;font-size:14px}
+main{max-width:600px;margin:22px auto;padding:0 15px}
+.card{
+ background:white;
+ padding:20px;
+ border-radius:15px;
+ margin-bottom:16px;
+ box-shadow:0 3px 12px #0000000c;
+}
+h2{font-size:18px;margin:0 0 16px}
+button{
+ width:100%;
+ border:0;
+ border-radius:10px;
+ padding:15px;
+ font-size:16px;
+ font-weight:bold;
+ cursor:pointer;
+ margin-top:10px;
+}
+.primary{background:#176b4b;color:white}
+.secondary{background:#e6f1eb;color:#176b4b}
+input[type=file]{display:none}
+#preview{
+ display:none;
+ width:100%;
+ max-height:430px;
+ object-fit:contain;
+ border-radius:10px;
+ margin-top:15px;
+ background:#eee;
+}
+.note{
+ color:#718078;
+ font-size:13px;
+ line-height:1.8;
+}
+footer{text-align:center;padding:20px;color:#718078;font-size:12px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>FACTURE RACHID BABA</h1>
+<p>Numérisation et gestion des factures</p>
+</header>
+
+<main>
+<div class="card">
+<h2>📷 تصوير فاتورة جديدة</h2>
+<p class="note">
+التقط صورة واضحة للفاتورة المكتوبة بخط اليد،
+سواء باللغة العربية أو الفرنسية.
+</p>
+
+<label for="photo">
+<button class="primary" type="button">
+📸 تصوير الفاتورة بالكاميرا
+</button>
+</label>
+
+<input
+ type="file"
+ id="photo"
+ accept="image/*"
+ capture="environment"
+>
+
+<img id="preview" alt="Aperçu de la facture">
+
+<button id="remove" class="secondary" style="display:none">
+حذف الصورة وإعادة التصوير
+</button>
+</div>
+
+<div class="card">
+<h2>🧾 استخراج بيانات الفاتورة</h2>
+<p class="note">
+بعد تصوير الفاتورة، ستتمكن من استخراج
+البيانات ومراجعتها قبل إنشاء الفاتورة الرقمية.
+</p>
+<button class="primary" disabled style="opacity:.5">
+استخراج البيانات - قريباً
+</button>
+</div>
+
+<div class="card">
+<h2>📁 إدارة الفواتير</h2>
+<p class="note">
+سيتم إضافة سجل الفواتير والبحث والطباعة
+وتحميل ملفات PDF في المراحل القادمة.
+</p>
+</div>
+</main>
+
+<footer>
+FACTURE RACHID BABA © 2026
+</footer>
+
+<script>
+const photo=document.getElementById("photo");
+const preview=document.getElementById("preview");
+const remove=document.getElementById("remove");
+
+photo.addEventListener("change",function(){
+ if(this.files && this.files[0]){
+  preview.src=URL.createObjectURL(this.files[0]);
+  preview.style.display="block";
+  remove.style.display="block";
+ }
+});
+
+remove.addEventListener("click",function(){
+ photo.value="";
+ preview.src="";
+ preview.style.display="none";
+ remove.style.display="none";
+});
+</script>
+
+</body>
+</html>
