@@ -1,3 +1,7 @@
 name = "facture-rachid-baba"
 main = "worker.js"
 compatibility_date = "2026-11-09"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
