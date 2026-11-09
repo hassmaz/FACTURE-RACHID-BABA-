@@ -19,7 +19,7 @@ export default {
     }
 
     try {
-      if (!env.OPENAI_API_KEY) {
+      if (!env["CLÉ_API_OPENAI"]) {
         throw new Error("مفتاح OpenAI غير مضبوط");
       }
 
@@ -47,7 +47,7 @@ export default {
         {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${env.OPENAI_API_KEY}`,
+            "Authorization": `Bearer ${env["CLÉ_API_OPENAI"]}`,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
