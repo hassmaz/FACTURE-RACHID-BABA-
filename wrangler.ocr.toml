@@ -1,0 +1,3 @@
+name = "facture-rachid-ocr"
+main = "worker-ocr.js"
+compatibility_date = "2026-11-09"
