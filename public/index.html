@@ -5,81 +5,225 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FACTURE RACHID BABA</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f1f5f2;color:#18352a;font-family:Arial,Tahoma,sans-serif}
-header{background:#176b4b;color:white;padding:25px 16px;text-align:center}
+body{
+  margin:0;
+  background:#f1f5f2;
+  color:#18352a;
+  font-family:Arial,Tahoma,sans-serif
+}
+header{
+  background:#176b4b;
+  color:white;
+  padding:25px 16px;
+  text-align:center
+}
 header h1{margin:0;font-size:23px}
 header p{margin:9px 0 0;font-size:14px}
-main{max-width:600px;margin:22px auto;padding:0 15px}
-.card{background:white;padding:20px;border-radius:15px;margin-bottom:16px;box-shadow:0 3px 12px #0000000c}
+main{max-width:750px;margin:22px auto;padding:0 15px}
+.card{
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  margin-bottom:16px;
+  box-shadow:0 3px 12px #0000000c
+}
 h2{font-size:18px;margin:0 0 16px}
+h3{font-size:16px;margin:20px 0 10px}
 .note{color:#718078;font-size:13px;line-height:1.8}
-button{width:100%;border:0;border-radius:10px;padding:15px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px}
+button{
+  width:100%;
+  border:0;
+  border-radius:10px;
+  padding:15px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:10px
+}
 button:disabled{opacity:.6;cursor:wait}
 .primary{background:#176b4b;color:white}
 .secondary{background:#e6f1eb;color:#176b4b}
 .danger{background:#fbe9e7;color:#a52a2a}
 #photo{display:none}
-#preview{display:none;width:100%;max-height:430px;object-fit:contain;border-radius:10px;margin-top:15px;background:#eee}
+#preview{
+  display:none;
+  width:100%;
+  max-height:430px;
+  object-fit:contain;
+  border-radius:10px;
+  margin-top:15px;
+  background:#eee
+}
 #cameraArea{display:none;margin-top:15px}
 video{width:100%;border-radius:10px;background:#111}
-#status{margin-top:12px;padding:10px;border-radius:8px;background:#f1f5f2;font-size:13px;line-height:1.7}
-#result{margin-top:15px;line-height:2;overflow-wrap:anywhere}
-#result h3{font-size:16px;margin:18px 0 8px}
-#result textarea{width:100%;min-height:220px;padding:12px;border:1px solid #cbd8ce;border-radius:8px;font:16px/1.8 Arial,Tahoma,sans-serif;direction:auto}
-footer{text-align:center;padding:20px;color:#718078;font-size:12px}
+#status{
+  margin-top:12px;
+  padding:12px;
+  border-radius:8px;
+  background:#f1f5f2;
+  font-size:13px;
+  line-height:1.8
+}
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-bottom:12px
+}
+.field label{
+  font-size:13px;
+  font-weight:bold;
+  color:#456052
+}
+.field input,.item input,.field textarea{
+  width:100%;
+  padding:11px;
+  border:1px solid #cbd8ce;
+  border-radius:8px;
+  font:15px Arial,Tahoma,sans-serif;
+  min-width:0
+}
+.field input:focus,.item input:focus{
+  outline:2px solid #a7d5b9;
+  border-color:#176b4b
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px
+}
+.item{
+  border:1px solid #dce7df;
+  border-radius:10px;
+  padding:12px;
+  margin-bottom:12px;
+  background:#fbfdfb
+}
+.item-title{
+  font-weight:bold;
+  color:#176b4b;
+  margin-bottom:10px
+}
+.item-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px
+}
+.total-box{
+  background:#eaf4ed;
+  border-radius:10px;
+  padding:14px;
+  margin-top:15px
+}
+.total-box .field{margin-bottom:8px}
+.warning{
+  color:#9a5b00;
+  background:#fff6df;
+  padding:10px;
+  border-radius:8px;
+  font-size:13px;
+  line-height:1.8
+}
+.success{
+  color:#176b4b;
+  background:#e6f4eb;
+  padding:10px;
+  border-radius:8px;
+  font-size:13px
+}
+footer{
+  text-align:center;
+  padding:20px;
+  color:#718078;
+  font-size:12px
+}
+@media(max-width:480px){
+  .grid,.item-grid{grid-template-columns:1fr}
+  .card{padding:15px}
+}
 </style>
 </head>
+
 <body>
+
 <header>
-<h1>FACTURE RACHID BABA</h1>
-<p>Numérisation et gestion des factures</p>
+  <h1>FACTURE RACHID BABA</h1>
+  <p>رقمنة وقراءة الفواتير المكتوبة بخط اليد</p>
 </header>
 
 <main>
-<div class="card">
-<h2>📷 تصوير فاتورة جديدة</h2>
-<p class="note">يمكنك التقاط صورة مباشرة بالكاميرا أو اختيار صورة محفوظة في هاتفك.</p>
-
-<button class="primary" id="openCamera" type="button">📸 تشغيل كاميرا الهاتف</button>
-<button class="secondary" id="choosePhoto" type="button">📁 اختيار صورة من الهاتف</button>
-
-<input type="file" id="photo" accept="image/*">
-
-<div id="cameraArea">
-<video id="video" autoplay playsinline muted></video>
-<button class="primary" id="takePhoto" type="button">التقاط صورة الفاتورة</button>
-<button class="danger" id="closeCamera" type="button">إغلاق الكاميرا</button>
-</div>
-
-<canvas id="canvas" style="display:none"></canvas>
-<img id="preview" alt="صورة الفاتورة">
-
-<button id="remove" class="danger" type="button" style="display:none">حذف الصورة وإعادة التصوير</button>
-
-<div id="status" aria-live="polite">في انتظار اختيار صورة أو تشغيل الكاميرا.</div>
-</div>
 
 <div class="card">
-<h2>🧾 استخراج بيانات الفاتورة</h2>
-<p class="note">استخراج النص من الفاتورة المكتوبة بالعربية أو الفرنسية، ثم مراجعته وتصحيحه.</p>
-<button class="primary" id="extractButton" type="button">استخراج بيانات الفاتورة</button>
-<div id="result" aria-live="polite"></div>
+  <h2>📷 تصوير فاتورة جديدة</h2>
+  <p class="note">
+    التقط صورة واضحة للفواتير المكتوبة بخط اليد أو اختر صورة محفوظة في هاتفك.
+  </p>
+
+  <button class="primary" id="openCamera" type="button">
+    📸 تشغيل كاميرا الهاتف
+  </button>
+
+  <button class="secondary" id="choosePhoto" type="button">
+    📁 اختيار صورة من الهاتف
+  </button>
+
+  <input type="file" id="photo" accept="image/*">
+
+  <div id="cameraArea">
+    <video id="video" autoplay playsinline muted></video>
+    <button class="primary" id="takePhoto" type="button">
+      التقاط صورة الفاتورة
+    </button>
+    <button class="danger" id="closeCamera" type="button">
+      إغلاق الكاميرا
+    </button>
+  </div>
+
+  <canvas id="canvas" style="display:none"></canvas>
+
+  <img id="preview" alt="صورة الفاتورة">
+
+  <button id="remove" class="danger" type="button" style="display:none">
+    حذف الصورة وإعادة التصوير
+  </button>
+
+  <div id="status" aria-live="polite">
+    في انتظار اختيار صورة أو تشغيل الكاميرا.
+  </div>
+
+  <button class="primary" id="extractButton" type="button">
+    استخراج بيانات الفاتورة بواسطة Gemini
+  </button>
+</div>
+
+<div class="card" id="resultCard" style="display:none">
+  <h2>🧾 البيانات المستخرجة</h2>
+
+  <p class="note">
+    راجع جميع البيانات والأسماء والأرقام، وصحح أي خطأ قبل اعتماد الفاتورة.
+  </p>
+
+  <div id="result"></div>
 </div>
 
 <div class="card">
-<h2>📁 إدارة الفواتير</h2>
-<p class="note">سيتم إضافة سجل الفواتير والبحث والطباعة وتحميل ملفات PDF.</p>
+  <h2>📁 إدارة الفواتير</h2>
+  <p class="note">
+    سيتم تطوير سجل لحفظ الفواتير والبحث فيها والطباعة وتحميل ملفات PDF في مرحلة لاحقة.
+  </p>
 </div>
+
 </main>
 
 <footer>FACTURE RACHID BABA © 2026</footer>
 
-<!-- محرك OCR مجاني -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
 <script>
+const OCR_URL =
+  "https://facture-rachid-ocr.amzouzhassanbonssir.workers.dev/";
+
 const photo = document.getElementById("photo");
 const preview = document.getElementById("preview");
 const video = document.getElementById("video");
@@ -87,26 +231,50 @@ const cameraArea = document.getElementById("cameraArea");
 const canvas = document.getElementById("canvas");
 const statusBox = document.getElementById("status");
 const resultBox = document.getElementById("result");
+const resultCard = document.getElementById("resultCard");
 const extractButton = document.getElementById("extractButton");
 
 let cameraStream = null;
 let imageUrl = null;
 let capturedBlob = null;
-let ocrWorker = null;
 
 function showStatus(message){
   statusBox.textContent = message;
 }
 
+function makeField(label, value, placeholder = ""){
+  const wrapper = document.createElement("div");
+  wrapper.className = "field";
+
+  const labelElement = document.createElement("label");
+  labelElement.textContent = label;
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = value === null || value === undefined ? "" : String(value);
+  input.placeholder = placeholder || "غير متوفر / يحتاج مراجعة";
+
+  wrapper.appendChild(labelElement);
+  wrapper.appendChild(input);
+
+  return wrapper;
+}
+
 function showImage(blob){
-  if(imageUrl) URL.revokeObjectURL(imageUrl);
+  if(imageUrl){
+    URL.revokeObjectURL(imageUrl);
+  }
 
   capturedBlob = blob;
   imageUrl = URL.createObjectURL(blob);
+
   preview.src = imageUrl;
   preview.style.display = "block";
+
   document.getElementById("remove").style.display = "block";
+
   resultBox.replaceChildren();
+  resultCard.style.display = "none";
 }
 
 function stopCamera(){
@@ -122,7 +290,7 @@ function stopCamera(){
 document.getElementById("openCamera").addEventListener("click", async function(){
 
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    showStatus("المتصفح لا يدعم تشغيل الكاميرا مباشرة. استعمل زر اختيار صورة من الهاتف.");
+    showStatus("المتصفح لا يدعم الكاميرا. استعمل اختيار صورة من الهاتف.");
     return;
   }
 
@@ -136,20 +304,14 @@ document.getElementById("openCamera").addEventListener("click", async function()
 
     video.srcObject = cameraStream;
     cameraArea.style.display = "block";
+
     await video.play();
 
-    showStatus("الكاميرا تعمل الآن. وجّه الهاتف نحو الفاتورة واضغط التقاط صورة.");
+    showStatus("الكاميرا تعمل الآن. وجّه الهاتف نحو الفاتورة.");
 
   }catch(error){
     stopCamera();
-
-    if(error.name === "NotAllowedError"){
-      showStatus("تم رفض إذن الكاميرا. اسمح لمتصفح Chrome باستخدام الكاميرا من إعدادات الهاتف.");
-    }else if(error.name === "NotFoundError"){
-      showStatus("لم يتم العثور على كاميرا في الجهاز.");
-    }else{
-      showStatus("تعذر تشغيل الكاميرا: " + error.message + ". يمكنك اختيار صورة من الهاتف.");
-    }
+    showStatus("تعذر تشغيل الكاميرا: " + error.message);
   }
 });
 
@@ -158,7 +320,9 @@ document.getElementById("choosePhoto").addEventListener("click", function(){
 });
 
 photo.addEventListener("change", function(){
+
   const file = this.files && this.files[0];
+
   if(!file) return;
 
   if(!file.type.startsWith("image/")){
@@ -169,7 +333,8 @@ photo.addEventListener("change", function(){
 
   stopCamera();
   showImage(file);
-  showStatus("تم اختيار الصورة بنجاح. يمكنك معاينتها أو استخراج النص.");
+
+  showStatus("تم اختيار الصورة بنجاح. اضغط على استخراج بيانات الفاتورة.");
 });
 
 document.getElementById("takePhoto").addEventListener("click", function(){
@@ -194,7 +359,8 @@ document.getElementById("takePhoto").addEventListener("click", function(){
 
     showImage(blob);
     stopCamera();
-    showStatus("تم التقاط صورة الفاتورة بنجاح. يمكنك الآن استخراج النص.");
+
+    showStatus("تم التقاط صورة الفاتورة بنجاح.");
 
   },"image/jpeg",0.92);
 });
@@ -207,6 +373,7 @@ document.getElementById("closeCamera").addEventListener("click", function(){
 document.getElementById("remove").addEventListener("click", function(){
 
   stopCamera();
+
   photo.value = "";
   capturedBlob = null;
 
@@ -217,11 +384,147 @@ document.getElementById("remove").addEventListener("click", function(){
 
   preview.removeAttribute("src");
   preview.style.display = "none";
+
   this.style.display = "none";
+
+  resultBox.replaceChildren();
+  resultCard.style.display = "none";
+
+  showStatus("تم حذف الصورة. يمكنك اختيار صورة جديدة.");
+});
+
+function displayInvoice(data){
+
   resultBox.replaceChildren();
 
-  showStatus("تم حذف الصورة. يمكنك التقاط صورة جديدة.");
-});
+  const identityTitle = document.createElement("h3");
+  identityTitle.textContent = "معلومات الفاتورة";
+  resultBox.appendChild(identityTitle);
+
+  const identityGrid = document.createElement("div");
+  identityGrid.className = "grid";
+
+  identityGrid.appendChild(
+    makeField("اسم البائع", data.seller)
+  );
+
+  identityGrid.appendChild(
+    makeField("اسم الزبون", data.customer)
+  );
+
+  identityGrid.appendChild(
+    makeField("رقم الفاتورة", data.invoice_number)
+  );
+
+  identityGrid.appendChild(
+    makeField("تاريخ الفاتورة", data.date)
+  );
+
+  resultBox.appendChild(identityGrid);
+
+  const itemsTitle = document.createElement("h3");
+  itemsTitle.textContent =
+    "قائمة المواد والبضائع (" + data.items.length + " سطراً)";
+
+  resultBox.appendChild(itemsTitle);
+
+  if(data.items.length === 0){
+    const warning = document.createElement("p");
+    warning.className = "warning";
+    warning.textContent = "لم يتم استخراج أي سطر من جدول المواد.";
+    resultBox.appendChild(warning);
+  }
+
+  data.items.forEach(function(item,index){
+
+    const itemCard = document.createElement("div");
+    itemCard.className = "item";
+
+    const title = document.createElement("div");
+    title.className = "item-title";
+    title.textContent = "المادة رقم " + (index + 1);
+
+    itemCard.appendChild(title);
+
+    const descriptionField = makeField(
+      "اسم المادة أو وصفها",
+      item.description,
+      "يحتاج إلى مراجعة إذا كان غير مقروء"
+    );
+
+    const itemGrid = document.createElement("div");
+    itemGrid.className = "item-grid";
+
+    itemGrid.appendChild(descriptionField);
+
+    itemGrid.appendChild(
+      makeField("الكمية", item.quantity)
+    );
+
+    itemGrid.appendChild(
+      makeField("ثمن الوحدة", item.unit_price)
+    );
+
+    itemGrid.appendChild(
+      makeField("مجموع السطر", item.total)
+    );
+
+    itemCard.appendChild(itemGrid);
+    resultBox.appendChild(itemCard);
+  });
+
+  const totalsTitle = document.createElement("h3");
+  totalsTitle.textContent = "الإجماليات";
+  resultBox.appendChild(totalsTitle);
+
+  const totalsBox = document.createElement("div");
+  totalsBox.className = "total-box";
+
+  const totalsGrid = document.createElement("div");
+  totalsGrid.className = "grid";
+
+  totalsGrid.appendChild(
+    makeField("المجموع قبل الضريبة", data.subtotal)
+  );
+
+  totalsGrid.appendChild(
+    makeField("الضريبة", data.tax)
+  );
+
+  totalsGrid.appendChild(
+    makeField("المجموع النهائي", data.total)
+  );
+
+  totalsGrid.appendChild(
+    makeField("العملة", data.currency || "MAD")
+  );
+
+  totalsBox.appendChild(totalsGrid);
+  resultBox.appendChild(totalsBox);
+
+  if(data.notes){
+
+    const notesTitle = document.createElement("h3");
+    notesTitle.textContent = "ملاحظات القراءة والحساب";
+
+    resultBox.appendChild(notesTitle);
+
+    const notes = document.createElement("p");
+    notes.className = "warning";
+    notes.textContent = data.notes;
+
+    resultBox.appendChild(notes);
+  }
+
+  const reminder = document.createElement("p");
+  reminder.className = "success";
+  reminder.textContent =
+    "تم استخراج البيانات. راجع أسماء المواد والأرقام يدوياً قبل اعتمادها.";
+
+  resultBox.appendChild(reminder);
+
+  resultCard.style.display = "block";
+}
 
 extractButton.addEventListener("click", async function(){
 
@@ -231,76 +534,71 @@ extractButton.addEventListener("click", async function(){
   }
 
   try{
+
     extractButton.disabled = true;
-    extractButton.textContent = "جارٍ تحميل محرك القراءة...";
+    extractButton.textContent = "جارٍ إرسال الصورة إلى Gemini...";
 
-    resultBox.textContent = "يرجى الانتظار. قد يستغرق تحميل بيانات اللغتين وقتاً في أول استعمال.";
+    resultCard.style.display = "block";
+    resultBox.textContent =
+      "جارٍ تحليل صورة الفاتورة واستخراج أسماء المواد والأرقام. يرجى الانتظار...";
 
-    if(!window.Tesseract){
-      throw new Error("تعذر تحميل محرك OCR. تحقق من الاتصال بالإنترنت ثم أعد المحاولة.");
+    showStatus("يتم الآن إرسال الصورة إلى محرك Gemini عبر Cloudflare.");
+
+    const formData = new FormData();
+    formData.append("image",capturedBlob,"facture.jpg");
+
+    const response = await fetch(OCR_URL,{
+      method:"POST",
+      body:formData
+    });
+
+    let result;
+
+    try{
+      result = await response.json();
+    }catch{
+      throw new Error("وصل رد غير مفهوم من الخادم. تحقق من إعداد العامل.");
     }
 
-    if(!ocrWorker){
-      ocrWorker = await Tesseract.createWorker("ara+fra", 1, {
-        logger: function(message){
-
-          if(message.status){
-            const percent = message.progress
-              ? " (" + Math.round(message.progress * 100) + "%)"
-              : "";
-
-            showStatus("تحميل/تشغيل محرك القراءة: " + message.status + percent);
-          }
-        }
-      });
+    if(!response.ok || !result.success){
+      throw new Error(
+        result.error || "تعذر استخراج بيانات الفاتورة."
+      );
     }
 
-    extractButton.textContent = "جارٍ قراءة الفاتورة...";
-
-    const result = await ocrWorker.recognize(capturedBlob);
-    const extractedText = (result.data && result.data.text)
-      ? result.data.text.trim()
-      : "";
-
-    resultBox.replaceChildren();
-
-    const heading = document.createElement("h3");
-    heading.textContent = "النص المستخرج — راجعه وصحح الأخطاء";
-    resultBox.appendChild(heading);
-
-    if(!extractedText){
-      resultBox.textContent = "لم يتم العثور على نص واضح. حاول تصوير الفاتورة بإضاءة أفضل وبشكل مستقيم.";
-      showStatus("لم يتم استخراج نص من الصورة.");
-      return;
+    if(!result.data || !Array.isArray(result.data.items)){
+      throw new Error("البيانات المستخرجة غير مكتملة أو غير منظمة.");
     }
 
-    const textArea = document.createElement("textarea");
-    textArea.value = extractedText;
-    textArea.setAttribute("aria-label", "النص المستخرج من الفاتورة");
+    displayInvoice(result.data);
 
-    resultBox.appendChild(textArea);
-
-    showStatus("تم استخراج النص. راجعه وصحح الأخطاء يدوياً قبل استعماله.");
+    showStatus(
+      "نجحت عملية الاتصال بـ Gemini. تم استخراج " +
+      result.data.items.length +
+      " سطراً من جدول المواد. يرجى مراجعة النتائج."
+    );
 
   }catch(error){
 
-    resultBox.textContent = "تعذر استخراج النص: " + error.message;
-    showStatus("حدث خطأ أثناء قراءة الفاتورة.");
+    resultBox.textContent = "تعذر استخراج البيانات: " + error.message;
+
+    showStatus("حدث خطأ أثناء الاتصال أو قراءة الفاتورة.");
 
   }finally{
+
     extractButton.disabled = false;
-    extractButton.textContent = "استخراج بيانات الفاتورة";
+    extractButton.textContent = "استخراج بيانات الفاتورة بواسطة Gemini";
   }
 });
 
-window.addEventListener("pagehide", function(){
+window.addEventListener("pagehide",function(){
   stopCamera();
 
-  if(ocrWorker){
-    ocrWorker.terminate();
-    ocrWorker = null;
+  if(imageUrl){
+    URL.revokeObjectURL(imageUrl);
   }
 });
 </script>
+
 </body>
 </html>
