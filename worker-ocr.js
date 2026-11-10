@@ -19,7 +19,7 @@ export default {
     }
 
     try {
-      if (!env["CLÉ_API_OPENAI"]) {
+      if (!env.OPENAI_API_KEY) {
         throw new Error("مفتاح OpenAI غير مضبوط");
       }
 
@@ -36,6 +36,7 @@ export default {
 
       const bytes = new Uint8Array(await photo.arrayBuffer());
       let binary = "";
+
       for (let i = 0; i < bytes.length; i++) {
         binary += String.fromCharCode(bytes[i]);
       }
@@ -47,7 +48,7 @@ export default {
         {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${env["CLÉ_API_OPENAI"]}`,
+            "Authorization": `Bearer ${env.OPENAI_API_KEY}`,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
@@ -116,4 +117,3 @@ export default {
     }
   }
 };
- 
