@@ -135,7 +135,6 @@ export default {
             ],
             generationConfig: {
               responseMimeType: "application/json",
-              temperature: 0.1,
               maxOutputTokens: 8192
             }
           })
