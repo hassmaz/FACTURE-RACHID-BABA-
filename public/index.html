@@ -5,135 +5,81 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FACTURE RACHID BABA</title>
-
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;background:#f1f5f2;color:#18352a;
-  font-family:Arial,Tahoma,sans-serif
-}
-header{
-  background:#176b4b;color:white;padding:25px 16px;text-align:center
-}
+body{margin:0;background:#f1f5f2;color:#18352a;font-family:Arial,Tahoma,sans-serif}
+header{background:#176b4b;color:white;padding:25px 16px;text-align:center}
 header h1{margin:0;font-size:23px}
 header p{margin:9px 0 0;font-size:14px}
 main{max-width:600px;margin:22px auto;padding:0 15px}
-.card{
-  background:white;padding:20px;border-radius:15px;
-  margin-bottom:16px;box-shadow:0 3px 12px #0000000c
-}
+.card{background:white;padding:20px;border-radius:15px;margin-bottom:16px;box-shadow:0 3px 12px #0000000c}
 h2{font-size:18px;margin:0 0 16px}
 .note{color:#718078;font-size:13px;line-height:1.8}
-button{
-  width:100%;border:0;border-radius:10px;padding:15px;
-  font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px
-}
+button{width:100%;border:0;border-radius:10px;padding:15px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px}
 button:disabled{opacity:.6;cursor:wait}
 .primary{background:#176b4b;color:white}
 .secondary{background:#e6f1eb;color:#176b4b}
 .danger{background:#fbe9e7;color:#a52a2a}
 #photo{display:none}
-#preview{
-  display:none;width:100%;max-height:430px;
-  object-fit:contain;border-radius:10px;margin-top:15px;background:#eee
-}
+#preview{display:none;width:100%;max-height:430px;object-fit:contain;border-radius:10px;margin-top:15px;background:#eee}
 #cameraArea{display:none;margin-top:15px}
 video{width:100%;border-radius:10px;background:#111}
-#status{
-  margin-top:12px;padding:10px;border-radius:8px;
-  background:#f1f5f2;font-size:13px;line-height:1.7
-}
-#result{
-  margin-top:15px;line-height:2;overflow-wrap:anywhere
-}
-#result .result-field{
-  padding:7px 9px;border-bottom:1px solid #e8eee9
-}
+#status{margin-top:12px;padding:10px;border-radius:8px;background:#f1f5f2;font-size:13px;line-height:1.7}
+#result{margin-top:15px;line-height:2;overflow-wrap:anywhere}
 #result h3{font-size:16px;margin:18px 0 8px}
-#result .item{
-  background:#f5f8f5;padding:10px;border-radius:8px;margin:8px 0
-}
+#result textarea{width:100%;min-height:220px;padding:12px;border:1px solid #cbd8ce;border-radius:8px;font:16px/1.8 Arial,Tahoma,sans-serif;direction:auto}
 footer{text-align:center;padding:20px;color:#718078;font-size:12px}
 </style>
 </head>
-
 <body>
-
 <header>
-  <h1>FACTURE RACHID BABA</h1>
-  <p>Numérisation et gestion des factures</p>
+<h1>FACTURE RACHID BABA</h1>
+<p>Numérisation et gestion des factures</p>
 </header>
 
 <main>
-
 <div class="card">
-  <h2>📷 تصوير فاتورة جديدة</h2>
+<h2>📷 تصوير فاتورة جديدة</h2>
+<p class="note">يمكنك التقاط صورة مباشرة بالكاميرا أو اختيار صورة محفوظة في هاتفك.</p>
 
-  <p class="note">
-    يمكنك التقاط صورة مباشرة بالكاميرا أو اختيار صورة محفوظة في هاتفك.
-  </p>
+<button class="primary" id="openCamera" type="button">📸 تشغيل كاميرا الهاتف</button>
+<button class="secondary" id="choosePhoto" type="button">📁 اختيار صورة من الهاتف</button>
 
-  <button class="primary" id="openCamera" type="button">
-    📸 تشغيل كاميرا الهاتف
-  </button>
+<input type="file" id="photo" accept="image/*">
 
-  <button class="secondary" id="choosePhoto" type="button">
-    📁 اختيار صورة من الهاتف
-  </button>
+<div id="cameraArea">
+<video id="video" autoplay playsinline muted></video>
+<button class="primary" id="takePhoto" type="button">التقاط صورة الفاتورة</button>
+<button class="danger" id="closeCamera" type="button">إغلاق الكاميرا</button>
+</div>
 
-  <input type="file" id="photo" accept="image/*">
+<canvas id="canvas" style="display:none"></canvas>
+<img id="preview" alt="صورة الفاتورة">
 
-  <div id="cameraArea">
-    <video id="video" autoplay playsinline muted></video>
-    <button class="primary" id="takePhoto" type="button">
-      التقاط صورة الفاتورة
-    </button>
-    <button class="danger" id="closeCamera" type="button">
-      إغلاق الكاميرا
-    </button>
-  </div>
+<button id="remove" class="danger" type="button" style="display:none">حذف الصورة وإعادة التصوير</button>
 
-  <canvas id="canvas" style="display:none"></canvas>
-
-  <img id="preview" alt="صورة الفاتورة">
-
-  <button id="remove" class="danger" type="button" style="display:none">
-    حذف الصورة وإعادة التصوير
-  </button>
-
-  <div id="status" aria-live="polite">
-    في انتظار اختيار صورة أو تشغيل الكاميرا.
-  </div>
+<div id="status" aria-live="polite">في انتظار اختيار صورة أو تشغيل الكاميرا.</div>
 </div>
 
 <div class="card">
-  <h2>🧾 استخراج بيانات الفاتورة</h2>
-  <p class="note">
-    استخرج بيانات الفاتورة المكتوبة بالعربية أو الفرنسية،
-    ثم راجع المعلومات المستخرجة.
-  </p>
-
-  <button class="primary" id="extractButton" type="button">
-    استخراج بيانات الفاتورة
-  </button>
-
-  <div id="result" aria-live="polite"></div>
+<h2>🧾 استخراج بيانات الفاتورة</h2>
+<p class="note">استخراج النص من الفاتورة المكتوبة بالعربية أو الفرنسية، ثم مراجعته وتصحيحه.</p>
+<button class="primary" id="extractButton" type="button">استخراج بيانات الفاتورة</button>
+<div id="result" aria-live="polite"></div>
 </div>
 
 <div class="card">
-  <h2>📁 إدارة الفواتير</h2>
-  <p class="note">
-    سيتم إضافة سجل الفواتير والبحث والطباعة وتحميل ملفات PDF.
-  </p>
+<h2>📁 إدارة الفواتير</h2>
+<p class="note">سيتم إضافة سجل الفواتير والبحث والطباعة وتحميل ملفات PDF.</p>
 </div>
-
 </main>
 
 <footer>FACTURE RACHID BABA © 2026</footer>
 
-<script>
-const OCR_URL = "https://facture-rachid-ocr.amzouzhassanbonssir.workers.dev";
+<!-- محرك OCR مجاني -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
+<script>
 const photo = document.getElementById("photo");
 const preview = document.getElementById("preview");
 const video = document.getElementById("video");
@@ -146,6 +92,7 @@ const extractButton = document.getElementById("extractButton");
 let cameraStream = null;
 let imageUrl = null;
 let capturedBlob = null;
+let ocrWorker = null;
 
 function showStatus(message){
   statusBox.textContent = message;
@@ -167,6 +114,7 @@ function stopCamera(){
     cameraStream.getTracks().forEach(track => track.stop());
     cameraStream = null;
   }
+
   video.srcObject = null;
   cameraArea.style.display = "none";
 }
@@ -221,10 +169,11 @@ photo.addEventListener("change", function(){
 
   stopCamera();
   showImage(file);
-  showStatus("تم اختيار الصورة بنجاح. يمكنك معاينتها أو استخراج بياناتها.");
+  showStatus("تم اختيار الصورة بنجاح. يمكنك معاينتها أو استخراج النص.");
 });
 
 document.getElementById("takePhoto").addEventListener("click", function(){
+
   if(!video.videoWidth){
     showStatus("انتظر حتى تعمل الكاميرا.");
     return;
@@ -237,6 +186,7 @@ document.getElementById("takePhoto").addEventListener("click", function(){
   context.drawImage(video,0,0,canvas.width,canvas.height);
 
   canvas.toBlob(function(blob){
+
     if(!blob){
       showStatus("تعذر حفظ الصورة. حاول مرة أخرى.");
       return;
@@ -244,7 +194,8 @@ document.getElementById("takePhoto").addEventListener("click", function(){
 
     showImage(blob);
     stopCamera();
-    showStatus("تم التقاط صورة الفاتورة بنجاح. يمكنك الآن استخراج بياناتها.");
+    showStatus("تم التقاط صورة الفاتورة بنجاح. يمكنك الآن استخراج النص.");
+
   },"image/jpeg",0.92);
 });
 
@@ -254,6 +205,7 @@ document.getElementById("closeCamera").addEventListener("click", function(){
 });
 
 document.getElementById("remove").addEventListener("click", function(){
+
   stopCamera();
   photo.value = "";
   capturedBlob = null;
@@ -271,61 +223,6 @@ document.getElementById("remove").addEventListener("click", function(){
   showStatus("تم حذف الصورة. يمكنك التقاط صورة جديدة.");
 });
 
-function addResultField(label, value){
-  const row = document.createElement("div");
-  row.className = "result-field";
-
-  const strong = document.createElement("strong");
-  strong.textContent = label + ": ";
-
-  const span = document.createElement("span");
-  span.textContent = value === null || value === undefined || value === ""
-    ? "غير محدد"
-    : String(value);
-
-  row.append(strong, span);
-  resultBox.appendChild(row);
-}
-
-function displayInvoice(data){
-  resultBox.replaceChildren();
-
-  addResultField("البائع", data.seller);
-  addResultField("الزبون", data.customer);
-  addResultField("رقم الفاتورة", data.invoice_number);
-  addResultField("التاريخ", data.date);
-  addResultField("المجموع قبل الضريبة", data.subtotal);
-  addResultField("الضريبة", data.tax);
-  addResultField("المجموع النهائي", data.total);
-  addResultField("العملة", data.currency);
-  addResultField("ملاحظات", data.notes);
-
-  if(Array.isArray(data.items)){
-    const heading = document.createElement("h3");
-    heading.textContent = "تفاصيل الفاتورة";
-    resultBox.appendChild(heading);
-
-    data.items.forEach((item, index) => {
-      const box = document.createElement("div");
-      box.className = "item";
-
-      const title = document.createElement("strong");
-      title.textContent = "البند " + (index + 1);
-      box.appendChild(title);
-
-      const details = document.createElement("div");
-      details.textContent =
-        "الوصف: " + (item.description ?? "غير محدد") +
-        " | الكمية: " + (item.quantity ?? "—") +
-        " | ثمن الوحدة: " + (item.unit_price ?? "—") +
-        " | المجموع: " + (item.total ?? "—");
-
-      box.appendChild(details);
-      resultBox.appendChild(box);
-    });
-  }
-}
-
 extractButton.addEventListener("click", async function(){
 
   if(!capturedBlob){
@@ -335,49 +232,75 @@ extractButton.addEventListener("click", async function(){
 
   try{
     extractButton.disabled = true;
-    extractButton.textContent = "جارٍ استخراج البيانات...";
-    resultBox.textContent = "يرجى الانتظار، تتم قراءة الفاتورة الآن...";
+    extractButton.textContent = "جارٍ تحميل محرك القراءة...";
 
-    const formData = new FormData();
-    formData.append("image", capturedBlob, "facture.jpg");
+    resultBox.textContent = "يرجى الانتظار. قد يستغرق تحميل بيانات اللغتين وقتاً في أول استعمال.";
 
-    const response = await fetch(OCR_URL, {
-      method: "POST",
-      body: formData
-    });
-
-    let result;
-
-    try{
-      result = await response.json();
-    }catch(parseError){
-      throw new Error("استجابة الخدمة غير مفهومة. حاول مرة أخرى.");
+    if(!window.Tesseract){
+      throw new Error("تعذر تحميل محرك OCR. تحقق من الاتصال بالإنترنت ثم أعد المحاولة.");
     }
 
-    if(!response.ok || !result.success){
-      throw new Error(result.error || "تعذر استخراج بيانات الفاتورة");
+    if(!ocrWorker){
+      ocrWorker = await Tesseract.createWorker("ara+fra", 1, {
+        logger: function(message){
+
+          if(message.status){
+            const percent = message.progress
+              ? " (" + Math.round(message.progress * 100) + "%)"
+              : "";
+
+            showStatus("تحميل/تشغيل محرك القراءة: " + message.status + percent);
+          }
+        }
+      });
     }
 
-    if(!result.data || typeof result.data !== "object"){
-      throw new Error("لم تُرجع الخدمة بيانات فاتورة صالحة.");
+    extractButton.textContent = "جارٍ قراءة الفاتورة...";
+
+    const result = await ocrWorker.recognize(capturedBlob);
+    const extractedText = (result.data && result.data.text)
+      ? result.data.text.trim()
+      : "";
+
+    resultBox.replaceChildren();
+
+    const heading = document.createElement("h3");
+    heading.textContent = "النص المستخرج — راجعه وصحح الأخطاء";
+    resultBox.appendChild(heading);
+
+    if(!extractedText){
+      resultBox.textContent = "لم يتم العثور على نص واضح. حاول تصوير الفاتورة بإضاءة أفضل وبشكل مستقيم.";
+      showStatus("لم يتم استخراج نص من الصورة.");
+      return;
     }
 
-    displayInvoice(result.data);
-    showStatus("تم استخراج البيانات بنجاح. يرجى مراجعتها والتأكد من دقتها.");
+    const textArea = document.createElement("textarea");
+    textArea.value = extractedText;
+    textArea.setAttribute("aria-label", "النص المستخرج من الفاتورة");
+
+    resultBox.appendChild(textArea);
+
+    showStatus("تم استخراج النص. راجعه وصحح الأخطاء يدوياً قبل استعماله.");
 
   }catch(error){
-    resultBox.textContent = "تعذر استخراج البيانات: " + error.message;
-    showStatus("حدث خطأ أثناء قراءة الفاتورة. تحقق من الاتصال وحاول مجدداً.");
+
+    resultBox.textContent = "تعذر استخراج النص: " + error.message;
+    showStatus("حدث خطأ أثناء قراءة الفاتورة.");
 
   }finally{
     extractButton.disabled = false;
     extractButton.textContent = "استخراج بيانات الفاتورة";
   }
-
 });
 
-window.addEventListener("pagehide", stopCamera);
-</script>
+window.addEventListener("pagehide", function(){
+  stopCamera();
 
+  if(ocrWorker){
+    ocrWorker.terminate();
+    ocrWorker = null;
+  }
+});
+</script>
 </body>
 </html>
