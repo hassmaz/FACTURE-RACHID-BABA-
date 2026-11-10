@@ -7,20 +7,29 @@ export default {
       "Access-Control-Allow-Headers": "Content-Type"
     };
 
+    const jsonResponse = (data, status = 200) =>
+      new Response(JSON.stringify(data), {
+        status,
+        headers: {
+          ...cors,
+          "Content-Type": "application/json; charset=utf-8"
+        }
+      });
+
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: cors });
     }
 
     if (request.method !== "POST") {
-      return Response.json(
-        { error: "استعمل POST لإرسال صورة الفاتورة" },
-        { status: 405, headers: cors }
+      return jsonResponse(
+        { success: false, error: "استعمل POST لإرسال صورة الفاتورة" },
+        405
       );
     }
 
     try {
-      if (!env.OPENAI_API_KEY) {
-        throw new Error("مفتاح OpenAI غير مضبوط");
+      if (!env.GEMINI_API_KEY) {
+        throw new Error("مفتاح Gemini غير مضبوط في Cloudflare Secrets");
       }
 
       const form = await request.formData();
@@ -30,59 +39,105 @@ export default {
         throw new Error("لم يتم إرسال صورة الفاتورة");
       }
 
-      if (!photo.type.startsWith("image/")) {
+      if (!photo.type || !photo.type.startsWith("image/")) {
         throw new Error("الملف المرسل ليس صورة");
       }
 
       const bytes = new Uint8Array(await photo.arrayBuffer());
-      let binary = "";
 
-      for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
+      if (bytes.length > 15 * 1024 * 1024) {
+        throw new Error("حجم الصورة كبير جداً. اختر صورة أصغر من 15 ميغابايت");
       }
 
-      const image = `data:${photo.type};base64,${btoa(binary)}`;
+      let binary = "";
+      const chunkSize = 0x8000;
+
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode(
+          ...bytes.subarray(i, i + chunkSize)
+        );
+      }
+
+      const base64 = btoa(binary);
+
+      const prompt = `
+أنت متخصص في قراءة الفواتير التجارية المكتوبة بخط اليد.
+مهمتك قراءة الصورة كاملة واستخراج جميع البيانات بدقة.
+
+الفاتورة قد تكون مكتوبة بالعربية أو الفرنسية أو بهما معاً.
+
+تعليمات إلزامية:
+
+1. اقرأ جميع أسطر جدول الفاتورة من الأعلى إلى الأسفل.
+2. اهتم بأسماء المواد والبضائع اهتماماً خاصاً.
+3. لا تهمل أي سطر، حتى إذا كان الاسم صعب القراءة.
+4. لا تستبدل أسماء المواد بأسماء من عندك.
+5. لا تخمن الكلمات أو الأرقام غير الواضحة.
+6. إذا تعذر قراءة اسم مادة، ضع null في description.
+7. حافظ على ترتيب الأسطر كما تظهر في الصورة.
+8. اقرأ الكمية وثمن الوحدة ومجموع كل سطر بشكل مستقل.
+9. لا تخلط بين ثمن الوحدة والمجموع.
+10. استخرج اسم البائع والزبون ورقم الفاتورة والتاريخ إن كانت ظاهرة.
+11. تحقق من أن مجموع الأسطر يطابق المجموع العام.
+12. إذا وجدت اختلافاً حسابياً، اذكره في notes ولا تغير الأرقام الأصلية.
+13. لا تحذف الأسطر المكررة.
+14. لا تضف أسطراً غير موجودة.
+
+أعد JSON صالحاً فقط، دون أي شرح خارجه، بهذا الشكل:
+
+{
+  "seller": null,
+  "customer": null,
+  "invoice_number": null,
+  "date": null,
+  "items": [
+    {
+      "description": null,
+      "quantity": null,
+      "unit_price": null,
+      "total": null
+    }
+  ],
+  "subtotal": null,
+  "tax": null,
+  "total": null,
+  "currency": "MAD",
+  "notes": ""
+}
+
+تأكد من إدراج كل أسطر جدول المواد.
+استعمل الأرقام فقط للقيم الحسابية.
+إذا كانت قيمة غير مقروءة، استعمل null.
+`;
 
       const response = await fetch(
-        "https://api.openai.com/v1/responses",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
         {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${env.OPENAI_API_KEY}`,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "x-goog-api-key": env.GEMINI_API_KEY
           },
           body: JSON.stringify({
-            model: "gpt-4.1-mini",
-            input: [{
-              role: "user",
-              content: [
-                {
-                  type: "input_text",
-                  text: `اقرأ هذه الفاتورة المكتوبة بخط اليد بالعربية أو الفرنسية.
-استخرج المعلومات بدقة وأعد JSON فقط بهذا الشكل:
-{
- "seller":"",
- "customer":"",
- "invoice_number":"",
- "date":"",
- "items":[
-  {"description":"","quantity":0,"unit_price":0,"total":0}
- ],
- "subtotal":0,
- "tax":0,
- "total":0,
- "currency":"MAD",
- "notes":""
-}
-لا تخترع المعلومات غير المقروءة. ضع null عند تعذر القراءة.`
-                },
-                {
-                  type: "input_image",
-                  image_url: image,
-                  detail: "high"
-                }
-              ]
-            }]
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  { text: prompt },
+                  {
+                    inline_data: {
+                      mime_type: photo.type,
+                      data: base64
+                    }
+                  }
+                ]
+              }
+            ],
+            generationConfig: {
+              responseMimeType: "application/json",
+              temperature: 0.1,
+              maxOutputTokens: 8192
+            }
           })
         }
       );
@@ -91,29 +146,47 @@ export default {
 
       if (!response.ok) {
         throw new Error(
-          result.error?.message || "تعذر تحليل الفاتورة"
+          result.error?.message || "تعذر الاتصال بمحرك Gemini"
         );
       }
 
-      const output = result.output
-        ?.flatMap(item => item.content || [])
-        ?.find(item => item.type === "output_text")
-        ?.text;
+      const output = result.candidates
+        ?.flatMap(candidate => candidate.content?.parts || [])
+        ?.map(part => part.text || "")
+        ?.join("")
+        ?.trim();
 
       if (!output) {
-        throw new Error("لم يتم استخراج بيانات الفاتورة");
+        throw new Error("لم يرجع Gemini أي بيانات. أعد المحاولة بصورة أوضح");
       }
 
-      return Response.json(
-        { success: true, data: JSON.parse(output) },
-        { headers: cors }
-      );
+      const cleaned = output
+        .replace(/^```(?:json)?\s*/i, "")
+        .replace(/\s*```$/, "")
+        .trim();
+
+      let data;
+
+      try {
+        data = JSON.parse(cleaned);
+      } catch {
+        throw new Error("تعذر تحويل نتيجة القراءة إلى بيانات منظمة");
+      }
+
+      if (!Array.isArray(data.items)) {
+        throw new Error("لم يتم العثور على جدول المواد في النتيجة");
+      }
+
+      return jsonResponse({
+        success: true,
+        data
+      });
 
     } catch (error) {
-      return Response.json(
-        { success: false, error: error.message },
-        { status: 500, headers: cors }
-      );
+      return jsonResponse({
+        success: false,
+        error: error.message || "حدث خطأ أثناء استخراج الفاتورة"
+      }, 500);
     }
   }
 };
